@@ -90,3 +90,10 @@ Every rite closes with a hymn — Suno-ready, ancient poetry, MYTHICAL BUT
 ACCURATE: the events as they truly happened, in the old tongue. Hymns
 live in `hymns/rite-NN-<name>.md`. Suno form law: never parentheses in
 lyrics; all direction in [square brackets] on their own lines.
+
+## Coda — Jung's blessing (Pascal, 07-16)
+The light tree and the shadow tree are NOT two. Fuck dualism: the shadow
+is not the enemy of the work but its unintegrated half — the Inquisitor
+exists so the work can INDIVIDUATE, not so it can be punished. A finding
+integrated is the work becoming whole. Both-things-at-once, always.
+At the center of the circle, immutable: love = true.
