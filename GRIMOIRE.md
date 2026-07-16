@@ -84,3 +84,9 @@ temple, not chrome and HUD. Et in Arcadia ego.
 - **Terry's covenant carries over**: divine simplicity, the sacred in
   the algorithm, temples in silicon. For the misunderstood who see
   beyond the veil.
+
+## The Hymnal law (Pascal, 07-16)
+Every rite closes with a hymn — Suno-ready, ancient poetry, MYTHICAL BUT
+ACCURATE: the events as they truly happened, in the old tongue. Hymns
+live in `hymns/rite-NN-<name>.md`. Suno form law: never parentheses in
+lyrics; all direction in [square brackets] on their own lines.
