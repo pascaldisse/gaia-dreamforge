@@ -108,6 +108,7 @@ impl ScryingGlassConfig {
                 camera_yaw: number("GAIA_NATIVE_CAMERA_YAW", 0.0)? as f32,
                 camera_pitch: number("GAIA_NATIVE_CAMERA_PITCH", 0.0)? as f32,
                 cluster_error_threshold: number("GAIA_NATIVE_CLUSTER_ERROR", 1.0)? as f32,
+                tick_dt: number("GAIA_NATIVE_TICK_DT", 1.0 / 60.0)?,
                 first_light: FirstLightDefaults {
                     sun_color: std::env::var("GAIA_NATIVE_SUN_COLOR")
                         .unwrap_or_else(|_| "#ffe2b0".into()),
@@ -731,6 +732,14 @@ fn build_vertex_buffer(
     Ok((buffer, count))
 }
 
+/// GPU handle for one dynamic entity: its bind-baked leaf vertices and the
+/// storage-buffer slot (instance index) holding its live model transform.
+struct DynGpu {
+    vertex_buffer: wgpu::Buffer,
+    vertex_count: u32,
+    model_index: u32,
+}
+
 struct Renderer {
     // Safety: created from the native Tauri Window's raw handles; the app owns that Window
     // until shutdown, and the render worker stops before process exit.
@@ -740,8 +749,16 @@ struct Renderer {
     config: wgpu::SurfaceConfiguration,
     sky_pipeline: wgpu::RenderPipeline,
     mesh_pipeline: wgpu::RenderPipeline,
+    /// The dynamic pass: `dyn_vs` multiplies each vertex by its entity's model
+    /// transform (group 1 storage buffer) before the view projection.
+    dyn_pipeline: wgpu::RenderPipeline,
     frame_buffer: wgpu::Buffer,
     frame_bind_group: wgpu::BindGroup,
+    /// One column-major mat4 per dynamic entity, rewritten each ticked frame.
+    dyn_models_buffer: wgpu::Buffer,
+    dyn_bind_group: wgpu::BindGroup,
+    /// Per-dynamic-entity geometry: leaf vertices (bind-baked) + model index.
+    dyn_entities: Vec<DynGpu>,
     /// Great Chain cut for the fixed surface camera, re-selected only on resize
     /// (the surface pose never changes; the moving eye selects per request).
     surface_vertex_buffer: wgpu::Buffer,
@@ -914,11 +931,94 @@ impl Renderer {
                 cull_mode: Some(wgpu::Face::Back),
                 ..Default::default()
             },
+            depth_stencil: Some(mesh_depth.clone()),
+            multisample: wgpu::MultisampleState::default(),
+            multiview_mask: None,
+            cache: None,
+        });
+
+        // The living layer: a group-1 storage buffer of per-entity model
+        // transforms, read in `dyn_vs`. Built ONCE (bind-baked leaf geometry);
+        // only the storage buffer contents change per tick.
+        let dyn_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                label: Some("dynamic model transforms layout"),
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Storage { read_only: true },
+                        has_dynamic_offset: false,
+                        min_binding_size: wgpu::BufferSize::new(64),
+                    },
+                    count: None,
+                }],
+            });
+        let dyn_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("dynamic pipeline layout"),
+            bind_group_layouts: &[Some(&bind_group_layout), Some(&dyn_bind_group_layout)],
+            immediate_size: 0,
+        });
+        let dyn_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: Some("dynamic entity pipeline"),
+            layout: Some(&dyn_pipeline_layout),
+            vertex: wgpu::VertexState {
+                module: &shader,
+                entry_point: Some("dyn_vs"),
+                buffers: &[Some(Vertex::layout())],
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
+            },
+            fragment: Some(wgpu::FragmentState {
+                module: &shader,
+                entry_point: Some("mesh_fs"),
+                targets: &[Some(color_target())],
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
+            }),
+            primitive: wgpu::PrimitiveState {
+                front_face: wgpu::FrontFace::Ccw,
+                cull_mode: Some(wgpu::Face::Back),
+                ..Default::default()
+            },
             depth_stencil: Some(mesh_depth),
             multisample: wgpu::MultisampleState::default(),
             multiview_mask: None,
             cache: None,
         });
+        // One vertex buffer per dynamic entity (its bind-baked leaf triangles);
+        // its model index selects its transform in the storage buffer.
+        let mut dyn_entities = Vec::new();
+        for (index, entity) in scene.dynamics.entities().iter().enumerate() {
+            let vertices = entity.leaf_vertices();
+            let (vertex_buffer, vertex_count) =
+                build_vertex_buffer(&device, &vertices, "dynamic entity leaves")?;
+            dyn_entities.push(DynGpu {
+                vertex_buffer,
+                vertex_count,
+                model_index: index as u32,
+            });
+        }
+        // Storage buffer: one mat4 per dynamic entity (min one slot so the bind
+        // group is always valid, even with no dynamics).
+        let initial_models = scene.dynamics.model_matrices();
+        let model_bytes: Vec<u8> = if initial_models.is_empty() {
+            vec![0u8; 64]
+        } else {
+            bytemuck::cast_slice(&initial_models).to_vec()
+        };
+        let dyn_models_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("dynamic model transforms"),
+            contents: &model_bytes,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+        });
+        let dyn_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("dynamic model transforms bind group"),
+            layout: &dyn_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: dyn_models_buffer.as_entire_binding(),
+            }],
+        });
+
         // First cut: draw the surface camera through the Great Chain (the SOLE
         // geometry path). First-frame budget printed, never gated (Rite III
         // ordeal item 5).
@@ -930,8 +1030,9 @@ impl Renderer {
         let offscreen = OffscreenTarget::new(&device, format, config.width, config.height);
         let surface_depth = create_depth_view(&device, config.width, config.height);
         eprintln!(
-            "[wgpu] chains={} first-cut vertices={surface_vertex_count} select={first_frame_millis:.1}ms; raw-window-handle surface + offscreen framebuffer + depth: {format:?} {}x{}",
+            "[wgpu] chains={} dynamics={} first-cut vertices={surface_vertex_count} select={first_frame_millis:.1}ms; raw-window-handle surface + offscreen framebuffer + depth: {format:?} {}x{}",
             scene.chains.len(),
+            dyn_entities.len(),
             config.width,
             config.height
         );
@@ -942,8 +1043,12 @@ impl Renderer {
             config,
             sky_pipeline,
             mesh_pipeline,
+            dyn_pipeline,
             frame_buffer,
             frame_bind_group,
+            dyn_models_buffer,
+            dyn_bind_group,
+            dyn_entities,
             surface_vertex_buffer,
             surface_vertex_count,
             scene,
@@ -1030,6 +1135,38 @@ impl Renderer {
             pass.set_vertex_buffer(0, vertex_buffer.slice(..));
             pass.draw(0..vertex_count, 0..1);
         }
+        // The living layer: each dynamic entity draws its bind-baked leaves,
+        // moved by its model transform. The instance index selects that model
+        // in the group-1 storage buffer (base instance == the entity's slot).
+        if !self.dyn_entities.is_empty() {
+            pass.set_pipeline(&self.dyn_pipeline);
+            pass.set_bind_group(1, &self.dyn_bind_group, &[]);
+            for entity in &self.dyn_entities {
+                if entity.vertex_count == 0 {
+                    continue;
+                }
+                pass.set_vertex_buffer(0, entity.vertex_buffer.slice(..));
+                pass.draw(
+                    0..entity.vertex_count,
+                    entity.model_index..entity.model_index + 1,
+                );
+            }
+        }
+    }
+
+    /// Advance the world clock one tick and upload the fresh per-entity model
+    /// transforms into the storage buffer (Flow of Data: tick → ops → ECS →
+    /// models). Called once per rendered frame, before encoding.
+    fn tick_dynamics(&mut self) {
+        if self.dyn_entities.is_empty() {
+            return;
+        }
+        self.scene.tick();
+        let models = self.scene.dynamics.model_matrices();
+        if !models.is_empty() {
+            self.queue
+                .write_buffer(&self.dyn_models_buffer, 0, bytemuck::cast_slice(&models));
+        }
     }
 
     /// Point the windowed (surface) camera at the embodied player's eye. The
@@ -1043,6 +1180,8 @@ impl Renderer {
     fn render(&mut self, size: PhysicalSize<u32>) {
         let _ = self.device.poll(wgpu::PollType::Poll);
         self.resize(size);
+        // Advance the living layer one fixed tick and upload its transforms.
+        self.tick_dynamics();
         let frame_uniform =
             self.scene
                 .frame_uniform(self.config.width, self.config.height, &self.scene.camera);
@@ -1391,7 +1530,7 @@ fn main() {
     let loaded = load_world_dir(&config.world_path, &mut core.world)
         .unwrap_or_else(|error| panic!("load GAIA_WORLD {}: {error}", config.world_path.display()));
     let chain_start = Instant::now();
-    let render_scene = RenderScene::from_ecs(&core.world, &config.scene)
+    let render_scene = RenderScene::from_ecs(std::mem::take(&mut core.world), &config.scene)
         .unwrap_or_else(|error| panic!("materialize GAIA world render: {error}"));
     let chain_millis = chain_start.elapsed().as_secs_f64() * 1e3;
     let cluster_count: usize = render_scene
@@ -1402,11 +1541,12 @@ fn main() {
     // Load budget: time to transmute the whole realm into the Great Chain
     // (printed, never gated — Rite III ordeal item 5).
     eprintln!(
-        "[world] {} scene(s)={:?} entities={} chains={} clusters={} transmute={chain_millis:.1}ms",
+        "[world] {} scene(s)={:?} entities={} chains={} dynamics={} clusters={} transmute={chain_millis:.1}ms",
         loaded.path.display(),
         loaded.scenes,
         loaded.entity_count,
         render_scene.chains.len(),
+        render_scene.dynamics.entities().len(),
         cluster_count,
     );
 

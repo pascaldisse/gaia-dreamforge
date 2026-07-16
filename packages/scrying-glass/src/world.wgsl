@@ -53,6 +53,26 @@ fn mesh_vs(in: MeshIn) -> MeshOut {
   return out;
 }
 
+// The living layer: one model transform per dynamic entity, indexed by the
+// draw's instance. Static geometry keeps identity (never touches this buffer);
+// dynamic vertices are baked at their bind world pose, then moved by `model`
+// (= M(animated)*M(bind)⁻¹) so the same vertex stream animates on the GPU.
+@group(1) @binding(0) var<storage, read> models: array<mat4x4<f32>>;
+
+@vertex
+fn dyn_vs(in: MeshIn, @builtin(instance_index) instance: u32) -> MeshOut {
+  var out: MeshOut;
+  let model = models[instance];
+  let world_position = model * vec4<f32>(in.position, 1.0);
+  out.position = frame.view_projection * world_position;
+  // w=0 drops the translation; rotation (+ uniform scale, normalized in fs)
+  // carries the normal into world space for the hemisphere shade.
+  out.normal = (model * vec4<f32>(in.normal, 0.0)).xyz;
+  out.color = in.color;
+  out.emissive = in.emissive;
+  return out;
+}
+
 // W1-only scaffolding → one deletable function; W4's integrator replaces it.
 fn scaffold_hemisphere_shade(normal: vec3<f32>) -> f32 {
   let n = normalize(normal);
