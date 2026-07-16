@@ -56,3 +56,25 @@ not design center — same law as boomtown).
 
 Wave contents may re-slice as reality bites; visibility-first never
 does.
+
+## Rite I — GUARDIAN'S RULING (07-16, ACCEPTED)
+Builder sol 294986e1 · Inquisitor opus: 0 MUST-FIX, 5 advisories, all
+gates independently reproduced (10/10 ordeals, param proof segments
+24→32, 5/5 pixel claims rebuilt from independent sRGB model). Scrying
+read by the Guardian's own eyes: the lighthouse stands.
+- EMISSIVE ADJUDICATED: color string, DATA-side (old engine truth:
+  geometry.js:328 THREE.Color, schema "self-lit color", zero bools in
+  corpus). Oracle-lane bool recommendation REJECTED — its own model's
+  inquisitor ruled against it. Seed data corrected; my realm vocabulary
+  henceforth: emissive = "#hex".
+- Advisory rulings: hemisphere scaffold shade KEPT through Rite III
+  (Pascal must SEE; it is one deletable fn; up-face color exactness
+  documented as incidental) — dies at the Fourth Rite with Lumen
+  Naturae · /scry camera/size params + depth buffer = Rite II (already
+  planned) · world.json-load ordeal + vertex-derivation ordeal = Rite
+  II additions · prefab deep-merge = parity item, Rite III · the W1
+  forward path is scaffolding that DIES at Rite III — deleted, never
+  grown.
+- Cross-branch note for the consecration merge: rust-port's naruko
+  main.json (yaw 0 + emissive strings) is canonical; oracle branch's
+  copy is superseded.
