@@ -97,3 +97,71 @@ is not the enemy of the work but its unintegrated half — the Inquisitor
 exists so the work can INDIVIDUATE, not so it can be punished. A finding
 integrated is the work becoming whole. Both-things-at-once, always.
 At the center of the circle, immutable: love = true.
+
+## Canto III — THE MAGNUM OPUS (Pascal, 07-16: "every fucking reference in there" — as MECHANICS, never skin)
+
+**THE MAGIC CRYSTAL** — the core's true name, his own words, supersedes
+Crucible. The Philosopher's Stone IS the core engine.
+
+- **LOVE = 1, the One Constant**: the never-hardcode law has exactly ONE
+  sanctioned exception — `LOVE: 1.0`, the only literal constant permitted
+  inside the Magic Crystal. Everything else is a parameter; love is not
+  negotiable. MECHANIC: love is the UNIT OF BINDING — every bond
+  (constraint strength, glue, fracture threshold, wire weight, signal
+  saturation, presence trust) is measured in loves on [0,1]; 1.0 =
+  unbreakable. Enforced by ordeal: a lint that rejects any other bare
+  constant in the Crystal. The 4th Temple's vector[32]=1.0 held immutable
+  at the circle's center — same gesture, now compiled.
+- **EMPEDOCLES — Love & Strife (Philotes & Neikos)**: the Elements'
+  two fundamental interactions. LOVE = attraction, cohesion, bonding,
+  gravity — the solver's constraint forces pulling toward rest. STRIFE =
+  separation, pressure, repulsion — read out as stress from constraint
+  forces (our open-ground feature IS the strife meter). FRACTURE = the
+  moment strife exceeds a bond's love. Love is gravity — literally the
+  attraction pass of the solver.
+- **PYTHAGORAS — the Monad**: all shapes emanate from ONE. The Seed's
+  root node = the Monad; point → line → plane → solid = the derivation
+  chain of every form. The Crystal boots by creating the first vessel —
+  the Monad — from which the realm grows. One thing, all shapes.
+- **ALCHEMY — the quality square (Aristotle) + transmutation**: essences
+  carry elemental sigils with four qualities (hot/cold/wet/dry).
+  Reactions = quality algebra on contact and in fields: fire heats+dries,
+  water cools+wets, fire+water → steam (hot+wet). Merging elements =
+  mixing qualities → NEW essences (creating elements is play, not
+  modding). BotW's chemistry engine is the floor, not the ceiling — real
+  interaction between all physical objects. Spirit: **the Athanor**
+  (the alchemist's furnace — reaction/chemistry engine; future package,
+  bound to the Elements and the Aether).
+- **FULLMETAL — Equivalent Exchange**: nothing gained without equal
+  loss = the conservation ordeals. Mass/momentum/energy budgets hold
+  through every transmutation, fracture, reaction; the solver's
+  conservation test suite bears this name.
+- **THE TREES**: Archtree = root/trunk/corona (Canto II). Ashvattha =
+  the REVERSE tree (Gita: roots above, crown below) — ours too: the
+  Crystal is the root, invisible, above; the realms hang beneath it.
+  Tree of Life = the emanation path from Crystal through spirits to
+  realms. Shadow Tree = the Inquisition (already law).
+- **JÖRMUNGANDR — the World Serpent**: the residency ring. In a
+  universe with zero loading, the serpent encircling each observer IS
+  the streaming ring — tail in mouth: OUROBOROS = memory pages recycled
+  around the ring, the world held together by the thing that eats
+  itself.
+- **READING STEINER**: memory across worldlines = world history as a
+  first-class organ — snapshots, branches, undo across resets; the one
+  who remembers the abandoned timeline. Future spirit, reserved name.
+- **LAIN — the Wired**: the presence/awareness layer (multiplayer-is-
+  for-making). The boundary between world and network dissolves;
+  everyone is connected. Present day. Present time.
+- **THE PANTHEON** (reserved, realm-canon): Gaia = the living world
+  state itself · Sidia = the chaos flame, the generative spirits ·
+  Ari, Harry, and the characters of Tomb of the Gods = named presences
+  reserved in the mythos registry. Lovecraft: the void beneath the
+  procedural deep (the unnamed sea the Seed draws from). Jung: already
+  the Coda.
+- **THE CHRONICLE — Dwarf Fortress law**: full deep-world simulation
+  (histories, societies, causality) = dedicated future spirit; a MUST
+  for the final product, not built yet.
+- STANDING TASK: harvest the full chat history for every remaining
+  mythological reference → each becomes a mechanic or a reserved name
+  here. Nothing is skin. This is the Magnum Opus — the magic crystal,
+  the thing he always dreamt about.
