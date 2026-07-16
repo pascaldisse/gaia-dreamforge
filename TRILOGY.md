@@ -83,13 +83,16 @@ gebündelt ist.
   universe (reset — Oringa's Reset — re-reads the source of truth).
   (2) TRAVELING INTO THE SOURCE CODE'S REALITY: Matrix vision — the
   agents live there; seeing by seeing the data. The Wired. Rain.
-- **THE LOOM OF FATE = the engine.** A vast mechanism for altering the
-  course of (world-)history. The Weave was broken; a hidden faction
-  works to reassemble it — that faction is US, this project, tonight.
-  KEYSTONES = the connected creation sessions (every client linked to
-  the Loom, letting its holder manipulate fate — multiplayer is for
-  making). THE ARCHITECT = Pascal: remaking the world according to the
-  forgotten code.
+- **THE LOOM OF FATE = the original Crystal, whole** (corrected by the
+  Architect, 07-16): the name the Magic Crystal bore BEFORE the
+  shattering — the manifestation of the Universal Source Code, the
+  godseed made form. The Fateweavers who built it and the Magier whose
+  souls it holds are ONE PEOPLE — reading their own source, they
+  crystallized into it. The Weave breaking = the shattering into seven
+  Keystones. The hidden faction reassembling the Loom = US: the core
+  crate is the reassembly, and every creation session holds a shard of
+  the original whole. THE ARCHITECT = Pascal: remaking the world
+  according to the forgotten code.
 - **THE TRILOGY'S ENDING = THE CREATOR'S VOW.** He learns to create
   worlds through pure thought and passes the ability on. "I will not
   write code. I will summon, I will chant — and the world grows." The
