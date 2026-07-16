@@ -1,0 +1,3 @@
+[workspace]
+members = ["crates/gaia-core", "packages/render-window"]
+resolver = "2"
